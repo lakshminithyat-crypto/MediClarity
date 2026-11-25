@@ -1,0 +1,6 @@
+{
+  "name": "MediClarity AI",
+  "description": "AI-powered medical lab report interpreter with client-side privacy redaction, plain-language explanations, and multilingual support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
