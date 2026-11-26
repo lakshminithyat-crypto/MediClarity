@@ -13,7 +13,8 @@ import { TestResultCard } from './components/TestResultCard';
 import { DoctorQuestionsCard } from './components/DoctorQuestionsCard';
 import { LoadingSkeleton } from './components/LoadingSkeleton';
 import type { AnalysisResult, LanguageCode, LoadedReport, TestFilter } from './types/report';
-import { sortAndFilterTests, validateAnalysisPayload } from './utils/reportHelpers';
+import { sortAndFilterTests } from './utils/reportHelpers';
+import { analyzeReportClientSide } from './services/geminiAnalysis';
 
 interface PendingAnalyzePayload {
   text?: string;
@@ -54,27 +55,13 @@ export default function App() {
       setErrorMessage(null);
 
       try {
-        const response = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            language: targetLanguage,
-            text: payload.text,
-            file: payload.file,
-            redactionApplied: payload.redactionApplied,
-          }),
+        const validated = await analyzeReportClientSide({
+          language: targetLanguage,
+          text: payload.text,
+          file: payload.file,
+          redactionApplied: payload.redactionApplied,
         });
 
-        const data = await response.json().catch(() => null);
-        if (!response.ok) {
-          const message =
-            data && typeof data.error === 'string'
-              ? data.error
-              : `Analysis request failed with status ${response.status}.`;
-          throw new Error(message);
-        }
-
-        const validated = validateAnalysisPayload(data, targetLanguage, payload.redactionApplied);
         setResult(validated);
         setActiveFilter('all');
 
